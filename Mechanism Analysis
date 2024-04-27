@@ -1,0 +1,115 @@
+%%Descent Code
+close all
+clear
+clc
+
+%inputs
+g=9.81; %m/s2
+mdiff1=1; %smallest mass difference between counterweight and cabin with person and wheelchair kg
+mdiff2=20; %largest mass difference between counterweight and cabin with person and wheelchair kg
+mdiff=mdiff1:mdiff2; %mass difference between counterweight and cabin with person and wheelchair kg
+mcabin=100; %mass of cabin kg
+mp1=70; %min person mass kg
+mp2=85; %max person mass kg
+mwc=20; %mass of wheelchair kg
+y=3.885; %height m
+%u=0; %starting speed m/s
+
+%outputs
+mtot1=mcabin+mwc+mp1;
+mtot2=mcabin+mwc+mp2;
+Fnet=mdiff.*g;
+a1=Fnet./mtot1;
+a2=Fnet./mtot2;
+t1=sqrt(2.*y./a1); %s
+t2=sqrt(2.*y./a2); %s
+v1=2.*a1.*y;
+v2=2.*a2.*y;
+
+%plots
+plot(mdiff,t1,mdiff,t2)
+xlabel('mass difference in kg')
+ylabel('descent time in sec')
+legend({'min person mass','max person mass'})
+figure
+plot(mdiff,v1,mdiff,v2)
+xlabel('mass difference in kg')
+ylabel('final velocity in m/s')
+legend({'min person mass','max person mass'})
+
+
+%%Ascent Code
+close all
+clear
+clc
+
+%Inputs
+MA=1:4; %mechanical advantage
+dcrank=0.3; %crank diameter in m
+y=3.885; %height m
+g=9.81;
+mdiff=10; %mass difference between counterweight and cabin with 70kg person and wheelchair kg
+trise=60; %rise time in s
+
+%Outputs (index 1 means for 70kg person and index 2 means for 85kg person)
+Fnet1=mdiff.*g; %opposing downward force in N
+Fnet2=(mdiff+15).*g; %opposing downward force in N
+rcrank=dcrank./2; %radius of crank in m
+Pcrank=2.*pi.*rcrank; %perimeter of crank in m
+ds=y.*MA; %displacement of rope in m
+Fa1=Fnet1./MA; %force applied by person in N
+Fa2=Fnet2./MA; %force applied by person in N
+Ta1=rcrank.*Fa1; %torque applied in N.m
+Ta2=rcrank.*Fa2; %torque applied in N.m
+rev=ds./Pcrank; %number of revolutions of the crank to reach top
+rpm=rev./(trise./60); %rev/min to reach the top in set time
+
+plot(MA,Fa1,MA,Fa2)
+xlabel('mechanical advantage')
+ylabel('applied foce in N')
+legend({'min person mass','max person mass'})
+figure
+plot(MA,rpm)
+xlabel('mechanical advantage')
+ylabel('crank revolutions per minute')
+
+%%close all
+clear
+clc
+
+%inputs
+N=4:20; %number of teeth
+A=0.002; %contact area per tooth
+muo=0.3; %coefficient of friction
+m=150; %mass of elevator with person 
+g=9.81; %gravitational acceleration
+cw=0.8*m; %mass of counterweight
+r=0.25; %radius of ratchet gear (crank)
+MA=4; %mechanical advantage
+
+%calc
+Fc=((m-cw).*g); %contact force
+FNmax=Fc; %maximum normal force (when the teeth are not in contact)
+
+%outputs
+Ff(N-3)=muo.*FNmax; %friction force needed to be overcome
+BS=Fc./(A.*N); %bearing stress on each tooth
+BLmax=2.*pi.*r./N; %maximum backlash
+y=BLmax./MA; %descent due to maximum backlash
+
+%graphs
+plot(N,Ff)
+xlabel('Number of Teeth')
+ylabel('Friction Force (N)')
+figure
+plot(N,BS)
+xlabel('Number of Teeth')
+ylabel('Bearing Stress (Pa)')
+figure
+plot(N,BLmax)
+xlabel('Number of Teeth')
+ylabel('Maximum Backlash (m)')
+figure
+plot(N,y)
+xlabel('Number of Teeth')
+ylabel('Descent due to Maximum Backlash (m)')
